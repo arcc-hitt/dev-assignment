@@ -66,12 +66,12 @@ public class PrefixDwrService {
             if (prefix == null) {
                 throw new IllegalArgumentException("Prefix cannot be null");
             }
-            if (prefix.getSearchPrefix() == null
-                    || prefix.getSearchPrefix().trim().isEmpty()) {
+
+            if (prefix.getSearchPrefix() == null || prefix.getSearchPrefix().trim().isEmpty()) {
                 throw new IllegalArgumentException("Search prefix is required");
             }
 
-            // Trim whitespace
+            // Trim whitespace from all fields
             prefix.setSearchPrefix(prefix.getSearchPrefix().trim());
             if (prefix.getGender() != null) {
                 prefix.setGender(prefix.getGender().trim());
@@ -80,30 +80,45 @@ public class PrefixDwrService {
                 prefix.setPrefixOf(prefix.getPrefixOf().trim());
             }
 
-            // saveOrUpdate via your Spring service
+            // Save the prefix - this will handle duplicate checking
             getPrefixService().save(prefix);
 
-            // **return** the managed entity (so DWR can serialize it back to JS)
+            // Return the saved prefix
             return prefix;
+        } catch (IllegalArgumentException e) {
+            // These are validation errors that should be shown to the user
+            e.printStackTrace();
+            throw new RuntimeException("Validation error: " + e.getMessage(), e);
         } catch (Exception e) {
             e.printStackTrace();
-            // include the exception class + message for more detail
-            throw new RuntimeException("Unexpected error: "
-                                                          + e.getClass().getSimpleName()
-                                                          + ": " + e.getMessage(), e);
+            // Check if it's a constraint violation
+            String message = e.getMessage();
+            if (message != null && message.toLowerCase().contains("duplicate")) {
+                throw new RuntimeException("A prefix with this value already exists. Please use a different value.", e);
+            } else if (message != null && message.toLowerCase().contains("constraint")) {
+                throw new RuntimeException("This prefix already exists. Please choose a different one.", e);
+            }
+            throw new RuntimeException("Unexpected error while saving prefix: " + message, e);
         }
     }
 
     @RemoteMethod
-    public void delete(Long id) {
+    public void deletePrefix(Long id) {
         try {
-            if (id == null) {
-                throw new IllegalArgumentException("ID cannot be null");
-            }
-
             getPrefixService().delete(id);
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (org.hibernate.StaleStateException sse) {
+            // Nothing was deleted because no such ID existed
+            throw new RuntimeException(
+                    "Prefix with ID " + id + " not found or already deleted.",
+                    sse
+            );
+        }
+        catch (IllegalArgumentException iae) {
+            // From your service layer if you check id==null, etc.
+            throw new RuntimeException(iae.getMessage(), iae);
+        }
+        catch (Exception e) {
             throw new RuntimeException("Error deleting prefix: " + e.getMessage(), e);
         }
     }

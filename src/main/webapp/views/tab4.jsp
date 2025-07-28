@@ -247,132 +247,137 @@
 </style>
 
 <script type="text/javascript">
-    // Global variables
-    var currentPage = 1;
-    var pageSize = 10;
-    var totalRecords = 0;
-    var totalPages = 0;
-    var currentFilter = '';
-    var currentGenderFilter = '';
-    var deleteId = null;
+    // Global vars
+    var currentPage = 1,
+        pageSize = 10,
+        totalRecords = 0,
+        totalPages = 0,
+        currentFilter = '',
+        currentGenderFilter = '',
+        deleteId = null,
+        dwrLoaded = false;
+    var isAdding = false;
+    var isDeleting = false;
 
-    // Check if DWR is loaded
-    var dwrLoaded = false;
-
-    // Initialize Tab 4
     function initTab4() {
-        console.log("Initializing Tab 4...");
-
-        // Check if DWR and prefixService are available
         if (typeof dwr !== 'undefined' && typeof prefixService !== 'undefined') {
             dwrLoaded = true;
-            console.log("DWR loaded successfully");
-
-            // Configure DWR
             dwr.engine.setAsync(true);
-            dwr.engine.setErrorHandler(function(msg, ex) {
-                console.error("DWR error:", msg, ex);
+            dwr.engine.setErrorHandler(function(msg, ex){
                 showMessage("Error connecting to server: " + msg, 'error');
             });
-        } else {
-            console.warn("DWR or prefixService not available");
         }
-
-        // Setup event listeners
         setupEventListeners();
-
-        // Load initial data
         loadPrefixList();
     }
 
-    // Setup event listeners
     function setupEventListeners() {
-        // Form submission
-        var form = document.getElementById('prefixEntryForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                addPrefix();
+        document.getElementById('prefixEntryForm')
+            .addEventListener('submit', function(e){ e.preventDefault(); addPrefix(); });
+        document.getElementById('clearBtn')
+            .addEventListener('click', clearForm);
+        document.getElementById('refreshBtn')
+            .addEventListener('click', loadPrefixList);
+        document.getElementById('searchFilter')
+            .addEventListener('keypress', function(e){
+                if (e.key === 'Enter') applyFilter();
             });
-        }
-
-        // Clear button
-        var clearBtn = document.getElementById('clearBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearForm);
-        }
-
-        // Refresh button
-        var refreshBtn = document.getElementById('refreshBtn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', function() {
-                loadPrefixList();
+        document.getElementById('confirmDeleteBtn')
+            .addEventListener('click', function(){
+                if (deleteId) executeDelete(deleteId);
             });
-        }
-
-        // Search filter enter key
-        var searchFilter = document.getElementById('searchFilter');
-        if (searchFilter) {
-            searchFilter.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    applyFilter();
-                }
-            });
-        }
-
-        // Delete confirmation
-        var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        if (confirmDeleteBtn) {
-            confirmDeleteBtn.addEventListener('click', function() {
-                if (deleteId) {
-                    executeDelete(deleteId);
-                }
-            });
-        }
     }
 
     // Load prefix list
     function loadPrefixList() {
         showLoading();
-
-        if (dwrLoaded) {
-            try {
-                // Get filtered data
-                prefixService.list(currentPage - 1, pageSize, currentFilter, {
-                    callback: function(data) {
-                        console.log("Received data:", data);
-                        renderPrefixTable(data);
-
-                        // Get total count for pagination
-                        prefixService.listAll({
-                            callback: function(allData) {
-                                // Apply client-side filtering for count
-                                var filteredData = filterData(allData);
-                                totalRecords = filteredData.length;
-                                totalPages = Math.ceil(totalRecords / pageSize);
-                                updatePagination();
-                                updateRecordCount();
-                            },
-                            errorHandler: function(message, exception) {
-                                console.error("Error getting total count:", message);
-                                showMessage("Error loading data count: " + message, 'error');
-                            }
-                        });
-                    },
-                    errorHandler: function(message, exception) {
-                        console.error("Error loading prefix list:", message, exception);
-                        showMessage("Error loading prefix list: " + message, 'error');
-                        loadMockData();
-                    }
-                });
-            } catch (e) {
-                console.error("DWR call failed:", e);
+        if (!dwrLoaded) {
+            loadMockData();
+            return;
+        }
+        prefixService.listAll({
+            callback: function(allData) {
+                // 1) apply filters
+                var filtered = filterData(allData);
+                totalRecords = filtered.length;
+                // 2) compute pages
+                totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+                // 3) slice for current page
+                var start = (currentPage - 1) * pageSize;
+                var pageData = filtered.slice(start, start + pageSize);
+                // 4) render
+                renderPrefixTable(pageData);
+                updatePagination();
+                updateRecordCount();
+            },
+            errorHandler: function(msg, ex) {
+                showMessage("Error loading prefixes: " + msg, 'error');
                 loadMockData();
             }
-        } else {
-            console.warn("Using mock data");
-            loadMockData();
+        });
+    }
+
+    function updatePagination() {
+        var container = document.getElementById('paginationControls');
+        container.innerHTML = '';
+
+        // — Prev button —
+        var prevLi = document.createElement('li');
+        prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
+        var prevLink = document.createElement('a');
+        prevLink.className = 'page-link';
+        prevLink.href = '#';
+        prevLink.innerText = 'Prev';
+        prevLink.onclick = function(e) {
+            e.preventDefault();
+            if (currentPage > 1) { currentPage--; loadPrefixList(); }
+        };
+        prevLi.appendChild(prevLink);
+        container.appendChild(prevLi);
+
+        // — Numbered buttons (show up to 5, sliding window) —
+        var windowSize = 5;
+        var half = Math.floor(windowSize / 2);
+        var start = Math.max(1, Math.min(currentPage - half, totalPages - windowSize + 1));
+        var end   = Math.min(totalPages, start + windowSize - 1);
+
+        for (var p = start; p <= end; p++) {
+            var li = document.createElement('li');
+            li.className = 'page-item' + (p === currentPage ? ' active' : '');
+            var a = document.createElement('a');
+            a.className = 'page-link';
+            a.href = '#';
+            a.innerText = p;
+            (function(pageNum){
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    if (pageNum !== currentPage) {
+                        currentPage = pageNum;
+                        loadPrefixList();
+                    }
+                };
+            })(p);
+            li.appendChild(a);
+            container.appendChild(li);
         }
+
+        // — Next button —
+        var nextLi = document.createElement('li');
+        nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
+        var nextLink = document.createElement('a');
+        nextLink.className = 'page-link';
+        nextLink.href = '#';
+        nextLink.innerText = 'Next';
+        nextLink.onclick = function(e) {
+            e.preventDefault();
+            if (currentPage < totalPages) { currentPage++; loadPrefixList(); }
+        };
+        nextLi.appendChild(nextLink);
+        container.appendChild(nextLi);
+
+        // — Page info —
+        document.getElementById('pageInfo')
+            .textContent = 'Page ' + currentPage + ' of ' + totalPages;
     }
 
     // Mock data for testing
@@ -415,6 +420,28 @@
         });
     }
 
+    function applyFilter() {
+        currentFilter = document.getElementById('searchFilter').value.trim();
+        currentGenderFilter = document.getElementById('genderFilter').value;
+        currentPage = 1;
+        loadPrefixList();
+    }
+
+    function clearFilter() {
+        document.getElementById('searchFilter').value = '';
+        document.getElementById('genderFilter').value = '';
+        currentFilter = '';
+        currentGenderFilter = '';
+        currentPage = 1;
+        loadPrefixList();
+    }
+
+    function changePageSize() {
+        pageSize = +document.getElementById('pageSizeSelect').value;
+        currentPage = 1;
+        loadPrefixList();
+    }
+
     // Render prefix table
     function renderPrefixTable(data) {
         var tbody = document.getElementById('prefixList');
@@ -449,6 +476,7 @@
 
     // Add new prefix
     function addPrefix() {
+        if (isAdding) return;
         var searchPrefix = document.getElementById('searchPrefix').value.trim();
         var gender = document.getElementById('gender').value;
         var prefixOf = document.getElementById('prefixOf').value.trim();
@@ -461,6 +489,7 @@
         }
 
         // Disable submit button
+        isAdding = true;
         var addBtn = document.getElementById('addBtn');
         addBtn.disabled = true;
         addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
@@ -479,6 +508,7 @@
                         showMessage('Prefix "' + searchPrefix + '" added successfully!', 'success');
                         clearForm();
                         loadPrefixList();
+                        isAdding = false;
 
                         // Re-enable button
                         addBtn.disabled = false;
@@ -487,6 +517,7 @@
                     errorHandler: function(message, exception) {
                         console.error("Error adding prefix:", message, exception);
                         showMessage('Error adding prefix: ' + message, 'error');
+                        isAdding = false;
 
                         // Re-enable button
                         addBtn.disabled = false;
@@ -534,13 +565,15 @@
 
     // Execute delete
     function executeDelete(id) {
+        if (isDeleting) return;
         var confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
 
+        isDeleting = true;
         if (dwrLoaded) {
             try {
-                prefixService.delete(id, {
+                prefixService.deletePrefix(id, {
                     callback: function(result) {
                         console.log("Prefix deleted successfully:", result);
                         showMessage('Prefix deleted successfully!', 'success');
@@ -553,6 +586,7 @@
                         confirmBtn.disabled = false;
                         confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
                         deleteId = null;
+                        isDeleting = false;
                     },
                     errorHandler: function(message, exception) {
                         console.error("Error deleting prefix:", message, exception);
@@ -561,6 +595,7 @@
                         // Reset button
                         confirmBtn.disabled = false;
                         confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                        isDeleting = false;
                     }
                 });
             } catch (e) {
@@ -570,6 +605,7 @@
                 // Reset button
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                isDeleting = false;
             }
         } else {
             // Mock success for demo
@@ -585,6 +621,7 @@
                 confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
                 deleteId = null;
             }, 1000);
+            isDeleting = false;
         }
     }
 
@@ -651,75 +688,6 @@
         document.getElementById('statusMessages').innerHTML = '';
     }
 
-    // Update pagination
-    function updatePagination() {
-        var paginationControls = document.getElementById('paginationControls');
-        paginationControls.innerHTML = '';
-
-        if (totalPages <= 1) {
-            return;
-        }
-
-        // Previous button
-        var prevLi = document.createElement('li');
-        prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
-        var prevLink = document.createElement('a');
-        prevLink.className = 'page-link';
-        prevLink.href = '#';
-        prevLink.innerHTML = 'Previous';
-        if (currentPage > 1) {
-            prevLink.onclick = function() {
-                currentPage = currentPage - 1;
-                loadPrefixList();
-                return false;
-            };
-        }
-        prevLi.appendChild(prevLink);
-        paginationControls.appendChild(prevLi);
-
-        // Page numbers
-        var startPage = Math.max(1, currentPage - 2);
-        var endPage = Math.min(totalPages, currentPage + 2);
-
-        for (var i = startPage; i <= endPage; i++) {
-            var li = document.createElement('li');
-            li.className = 'page-item' + (i === currentPage ? ' active' : '');
-            var link = document.createElement('a');
-            link.className = 'page-link';
-            link.href = '#';
-            link.innerHTML = i;
-            (function(pageNum) {
-                link.onclick = function() {
-                    currentPage = pageNum;
-                    loadPrefixList();
-                    return false;
-                };
-            })(i);
-            li.appendChild(link);
-            paginationControls.appendChild(li);
-        }
-
-        // Next button
-        var nextLi = document.createElement('li');
-        nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
-        var nextLink = document.createElement('a');
-        nextLink.className = 'page-link';
-        nextLink.href = '#';
-        nextLink.innerHTML = 'Next';
-        if (currentPage < totalPages) {
-            nextLink.onclick = function() {
-                currentPage = currentPage + 1;
-                loadPrefixList();
-                return false;
-            };
-        }
-        nextLi.appendChild(nextLink);
-        paginationControls.appendChild(nextLi);
-
-        // Update page info
-        document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
-    }
-
     // Update record count
     function updateRecordCount() {
         document.getElementById('recordCount').textContent = 'Total: ' + totalRecords + ' records';
@@ -729,7 +697,6 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initTab4);
     } else {
-        // DOM already loaded, initialize with delay to ensure DWR is loaded
         setTimeout(initTab4, 500);
     }
 </script>

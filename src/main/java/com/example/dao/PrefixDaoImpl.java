@@ -24,7 +24,15 @@ public class PrefixDaoImpl implements PrefixDao {
     public void save(Prefix p) {
         try {
             sf.getCurrentSession().saveOrUpdate(p);
-        } catch (Exception e) {
+        }
+        catch (org.hibernate.exception.ConstraintViolationException cve) {
+            // Unique index on search_prefix violated
+            throw new IllegalArgumentException(
+                    "A prefix '" + p.getSearchPrefix() + "' already exists.",
+                    cve
+            );
+        }
+        catch (Exception e) {
             throw new RuntimeException("Error saving prefix: " + e.getMessage(), e);
         }
     }
@@ -132,16 +140,25 @@ public class PrefixDaoImpl implements PrefixDao {
     @Override
     public Prefix findBySearchPrefix(String searchPrefix) {
         try {
-                        return sf.getCurrentSession()
-                                         .createQuery(
-                                             "SELECT p FROM Prefix p WHERE lower(p.searchPrefix) = :sp",
-                                             Prefix.class
-                                                 )
-                                         .setParameter("sp", searchPrefix.toLowerCase().trim())
-                                         .uniqueResult();
-                    } catch (Exception e) {
-                        throw new RuntimeException("Error looking up prefix by searchPrefix: "
-                                                           + e.getMessage(), e);
-                    }
+            if (searchPrefix == null) {
+                return null;
             }
+
+            // Use case-insensitive search with trimmed input
+            String trimmedPrefix = searchPrefix.trim();
+            if (trimmedPrefix.isEmpty()) {
+                return null;
+            }
+
+            return sf.getCurrentSession()
+                    .createQuery(
+                            "SELECT p FROM Prefix p WHERE LOWER(TRIM(p.searchPrefix)) = LOWER(:sp)",
+                            Prefix.class
+                    )
+                    .setParameter("sp", trimmedPrefix)
+                    .uniqueResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Error looking up prefix by searchPrefix: " + e.getMessage(), e);
+        }
+    }
 }
