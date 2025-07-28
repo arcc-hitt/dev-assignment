@@ -128,4 +128,20 @@ public class PrefixDaoImpl implements PrefixDao {
             throw new RuntimeException("Error counting prefixes: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public Prefix findBySearchPrefix(String searchPrefix) {
+        try {
+                        return sf.getCurrentSession()
+                                         .createQuery(
+                                             "SELECT p FROM Prefix p WHERE lower(p.searchPrefix) = :sp",
+                                             Prefix.class
+                                                 )
+                                         .setParameter("sp", searchPrefix.toLowerCase().trim())
+                                         .uniqueResult();
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error looking up prefix by searchPrefix: "
+                                                           + e.getMessage(), e);
+                    }
+            }
 }

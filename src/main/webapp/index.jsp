@@ -2,22 +2,46 @@
 <html>
 <head>
     <title>Dev Assignment</title>
+    <!-- DWR Scripts - Order is important -->
+    <script type='text/javascript' src="${pageContext.request.contextPath}/dwr/engine.js"></script>
+    <script type='text/javascript' src="${pageContext.request.contextPath}/dwr/util.js"></script>
+    <script type='text/javascript' src="${pageContext.request.contextPath}/dwr/interface/prefixService.js"></script>
+    <script type='text/javascript' src="${pageContext.request.contextPath}/dwr/interface/itemService.js"></script>
+
     <link rel="stylesheet" href="<c:url value='/resources/css/bootstrap.min.css'/>"/>
     <link rel="stylesheet" href="<c:url value='/resources/extjs/build/development/extjs/classic/resources/extjs-all.css'/>"/>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="<c:url value='/resources/extjs/ext/build/ext-all.js'/>"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-<%--    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>--%>
-<%--    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>--%>
-<%--    <script src="<c:url value='/dwr/interface/itemService.js'/>"></script>--%>
-    <script src="${pageContext.request.contextPath}/dwr/util.js"></script>
-    <script src="${pageContext.request.contextPath}/dwr/engine.js"></script>
-    <script src="${pageContext.request.contextPath}/dwr/interface/prefixService.js"></script>
-    <script src="${pageContext.request.contextPath}/dwr/interface/itemService.js"></script>
+
     <script src="<c:url value='/resources/js/jquery.min.js'/>"></script>
     <script src="<c:url value='/resources/js/bootstrap.bundle.min.js'/>"></script>
+
+    <!-- DWR Debug Check -->
+    <script type="text/javascript">
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof dwr === 'undefined') {
+                    console.error('DWR not loaded! Check if DWR servlet is running at /dwr/engine.js');
+                } else {
+                    console.log('DWR loaded successfully');
+                    if (typeof prefixService === 'undefined') {
+                        console.error('prefixService not loaded!');
+                    } else {
+                        console.log('prefixService loaded successfully');
+                    }
+                    if (typeof itemService === 'undefined') {
+                        console.error('itemService not loaded!');
+                    } else {
+                        console.log('itemService loaded successfully');
+                    }
+                }
+            }, 1000);
+        });
+    </script>
 </head>
 <body>
+<!-- Rest of the JSP content remains the same -->
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" id="mainTabNav" role="tablist">
     <li class="nav-item">

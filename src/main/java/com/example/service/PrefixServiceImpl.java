@@ -20,6 +20,14 @@ public class PrefixServiceImpl implements PrefixService {
         if (p == null) {
             throw new IllegalArgumentException("Prefix cannot be null");
         }
+                Prefix existing = dao.findBySearchPrefix(p.getSearchPrefix());
+                // if we're inserting a new prefix, forbid duplicates;
+                        // if updating (p.getId() != null), allow if it's the same record
+                                if (existing != null && (p.getId() == null || !existing.getId().equals(p.getId()))) {
+                        throw new IllegalArgumentException(
+                                    "Prefix '" + p.getSearchPrefix() + "' already exists."
+                                        );
+                    }
         dao.save(p);
     }
 

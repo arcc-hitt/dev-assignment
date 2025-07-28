@@ -11,7 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@RemoteProxy(name = "ItemService")
+@RemoteProxy(name = "itemService")
 public class ItemDwrService {
 
     private ItemService itemService;
@@ -45,6 +45,7 @@ public class ItemDwrService {
         try {
             return getItemService().getItems(search, category, page, pageSize);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error retrieving items: " + e.getMessage(), e);
         }
     }
@@ -54,6 +55,7 @@ public class ItemDwrService {
         try {
             return getItemService().getItemCount(search, category);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error counting items: " + e.getMessage(), e);
         }
     }

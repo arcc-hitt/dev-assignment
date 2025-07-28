@@ -17,26 +17,19 @@
     <mvc:annotation-driven/>
     <mvc:resources mapping="/resources/**" location="/resources/"/>
 
-    <!-- View resolver -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
 
-    <!-- DataSource -->
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
-        <!-- explicitly tell Hikari which driver to load -->
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <!-- include serverTimezone to avoid timezone warnings -->
         <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/devdb?useSSL=false&amp;serverTimezone=UTC"/>
         <property name="username" value="root"/>
         <property name="password" value="arc_4321"/>
-        <!-- optional pool sizing -->
         <property name="maximumPoolSize" value="10"/>
     </bean>
 
-
-    <!-- Hibernate SessionFactory -->
     <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="packagesToScan" value="com.example.model"/>
@@ -49,14 +42,10 @@
         </property>
     </bean>
 
-    <!-- Transaction manager -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
-    <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <!-- Manual bean definitions for DWR services -->
-    <bean id="prefixDwrService" class="com.example.dwr.PrefixDwrService"/>
-    <bean id="itemDwrService" class="com.example.dwr.ItemDwrService"/>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
 
 </beans>

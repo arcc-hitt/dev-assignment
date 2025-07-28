@@ -45,6 +45,7 @@ public class PrefixDwrService {
         try {
             return getPrefixService().list(page, size, search);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error retrieving prefix list: " + e.getMessage(), e);
         }
     }
@@ -54,18 +55,19 @@ public class PrefixDwrService {
         try {
             return getPrefixService().listAll();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error retrieving all prefixes: " + e.getMessage(), e);
         }
     }
 
     @RemoteMethod
-    public void create(Prefix prefix) {
+    public Prefix create(Prefix prefix) {
         try {
             if (prefix == null) {
                 throw new IllegalArgumentException("Prefix cannot be null");
             }
-
-            if (prefix.getSearchPrefix() == null || prefix.getSearchPrefix().trim().isEmpty()) {
+            if (prefix.getSearchPrefix() == null
+                    || prefix.getSearchPrefix().trim().isEmpty()) {
                 throw new IllegalArgumentException("Search prefix is required");
             }
 
@@ -78,9 +80,17 @@ public class PrefixDwrService {
                 prefix.setPrefixOf(prefix.getPrefixOf().trim());
             }
 
+            // saveOrUpdate via your Spring service
             getPrefixService().save(prefix);
+
+            // **return** the managed entity (so DWR can serialize it back to JS)
+            return prefix;
         } catch (Exception e) {
-            throw new RuntimeException("Error creating prefix: " + e.getMessage(), e);
+            e.printStackTrace();
+            // include the exception class + message for more detail
+            throw new RuntimeException("Unexpected error: "
+                                                          + e.getClass().getSimpleName()
+                                                          + ": " + e.getMessage(), e);
         }
     }
 
@@ -93,6 +103,7 @@ public class PrefixDwrService {
 
             getPrefixService().delete(id);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error deleting prefix: " + e.getMessage(), e);
         }
     }
@@ -106,6 +117,7 @@ public class PrefixDwrService {
 
             return getPrefixService().get(id);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error retrieving prefix: " + e.getMessage(), e);
         }
     }
@@ -115,6 +127,7 @@ public class PrefixDwrService {
         try {
             return getPrefixService().count(search);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error counting prefixes: " + e.getMessage(), e);
         }
     }
