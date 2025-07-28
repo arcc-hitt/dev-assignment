@@ -7,9 +7,13 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="<c:url value='/resources/extjs/ext/build/ext-all.js'/>"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
-    <script src="<c:url value='/dwr/interface/prefixService.js'/>"></script>
+<%--    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>--%>
+<%--    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>--%>
+<%--    <script src="<c:url value='/dwr/interface/itemService.js'/>"></script>--%>
+    <script src="${pageContext.request.contextPath}/dwr/util.js"></script>
+    <script src="${pageContext.request.contextPath}/dwr/engine.js"></script>
+    <script src="${pageContext.request.contextPath}/dwr/interface/prefixService.js"></script>
+    <script src="${pageContext.request.contextPath}/dwr/interface/itemService.js"></script>
     <script src="<c:url value='/resources/js/jquery.min.js'/>"></script>
     <script src="<c:url value='/resources/js/bootstrap.bundle.min.js'/>"></script>
 </head>

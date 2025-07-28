@@ -57,7 +57,7 @@ This is a Java web application built with Spring MVC, Hibernate, and DWR that im
 
 1. **Database Setup**:
    - Create a MySQL database
-   - Run the `database_schema.sql` file to create tables and sample data
+   - Run the `prefix_schema.sql` file to create tables and sample data
 
 2. **Configuration**:
    - Update database connection settings in `src/main/resources/application.properties`

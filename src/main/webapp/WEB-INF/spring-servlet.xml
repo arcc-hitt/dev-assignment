@@ -55,4 +55,8 @@
     </bean>
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
+    <!-- Manual bean definitions for DWR services -->
+    <bean id="prefixDwrService" class="com.example.dwr.PrefixDwrService"/>
+    <bean id="itemDwrService" class="com.example.dwr.ItemDwrService"/>
+
 </beans>
