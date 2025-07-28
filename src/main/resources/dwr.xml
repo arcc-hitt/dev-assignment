@@ -1,0 +1,7 @@
+<dwr>
+    <allow>
+        <create creator="new" javascript="prefixService">
+            <param name="class" value="com.example.dwr.PrefixDwrService"/>
+        </create>
+    </allow>
+</dwr>
