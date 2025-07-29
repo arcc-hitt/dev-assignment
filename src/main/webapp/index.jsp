@@ -41,7 +41,6 @@
     </script>
 </head>
 <body>
-<!-- Rest of the JSP content remains the same -->
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" id="mainTabNav" role="tablist">
     <li class="nav-item">
@@ -149,18 +148,18 @@
          aria-labelledby="dwr-tab">
         <jsp:include page="views/tab4.jsp"/>
     </div>
-<%--    <div class="tab-pane fade"--%>
-<%--         id="tab5"--%>
-<%--         role="tabpanel"--%>
-<%--         aria-labelledby="excel-tab">--%>
-<%--        <jsp:include page="views/tab5.jsp"/>--%>
-<%--    </div>--%>
-<%--    <div class="tab-pane fade"--%>
-<%--         id="tab6"--%>
-<%--         role="tabpanel"--%>
-<%--         aria-labelledby="rest-tab">--%>
-<%--        <jsp:include page="views/tab6.jsp"/>--%>
-<%--    </div>--%>
+    <div class="tab-pane fade"
+         id="tab5"
+         role="tabpanel"
+         aria-labelledby="excel-tab">
+        <jsp:include page="views/tab5.jsp"/>
+    </div>
+    <div class="tab-pane fade"
+         id="tab6"
+         role="tabpanel"
+         aria-labelledby="rest-tab">
+        <jsp:include page="views/tab6.jsp"/>
+    </div>
     <div class="tab-pane fade"
          id="tab7"
          role="tabpanel"

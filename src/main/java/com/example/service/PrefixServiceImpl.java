@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
-@Service @Transactional
+@Service
+@Transactional
 public class PrefixServiceImpl implements PrefixService {
     @Autowired private PrefixDao dao;
 
@@ -38,5 +39,11 @@ public class PrefixServiceImpl implements PrefixService {
     @Override
     public void delete(Long id){
         dao.delete(id);
+    }
+
+    @Override
+    public List<Prefix> listAll() {
+        // Get all records without pagination for Excel export and API endpoints
+        return dao.list("", "", "", 0, Integer.MAX_VALUE);
     }
 }

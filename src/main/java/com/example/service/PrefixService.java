@@ -11,4 +11,7 @@ public interface PrefixService {
     long getPrefixCount(String search, String gender, String prefixOf);
     void save(Prefix p);
     void delete(Long id);
+
+    // Additional methods needed for complete integration
+    List<Prefix> listAll();
 }
