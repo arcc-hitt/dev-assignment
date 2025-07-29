@@ -8,38 +8,57 @@ import java.util.List;
 
 @Repository
 public class ItemDAO {
-    @Autowired
-    private SessionFactory sessionFactory;
+    @Autowired private SessionFactory sessionFactory;
 
-    public List<Item> list(String search, String category, int offset, int limit) {
-        var session = sessionFactory.getCurrentSession();
+    public List<Item> list(
+            String name, String code, String category,
+            String department, String status,
+            int offset, int limit
+    ) {
         var hql = new StringBuilder("from Item where 1=1");
-        if (search != null && !search.isEmpty()) {
-            hql.append(" and (code like :s or name like :s)");
-        }
-        if (category != null && !category.isEmpty()) {
-            hql.append(" and category = :c");
-        }
+        if (!isEmpty(name))       hql.append(" and name like :name");
+        if (!isEmpty(code))       hql.append(" and code like :code");
+        if (!isEmpty(category))   hql.append(" and category = :cat");
+        if (!isEmpty(department)) hql.append(" and department = :dept");
+        if (!isEmpty(status))     hql.append(" and status = :stat");
+
+        var session = sessionFactory.getCurrentSession();
         var q = session.createQuery(hql.toString(), Item.class);
-        if (search != null && !search.isEmpty()) {
-            q.setParameter("s", "%" + search + "%");
-        }
-        if (category != null && !category.isEmpty()) {
-            q.setParameter("c", category);
-        }
+
+        if (!isEmpty(name))       q.setParameter("name","%"+name+"%");
+        if (!isEmpty(code))       q.setParameter("code","%"+code+"%");
+        if (!isEmpty(category))   q.setParameter("cat",category);
+        if (!isEmpty(department)) q.setParameter("dept",department);
+        if (!isEmpty(status))     q.setParameter("stat",status);
+
         q.setFirstResult(offset);
         q.setMaxResults(limit);
         return q.list();
     }
 
-    public long count(String search, String category) {
-        var session = sessionFactory.getCurrentSession();
+    public long count(
+            String name, String code, String category,
+            String department, String status
+    ) {
         var hql = new StringBuilder("select count(*) from Item where 1=1");
-        if (search != null && !search.isEmpty()) hql.append(" and (code like :s or name like :s)");
-        if (category != null && !category.isEmpty()) hql.append(" and category = :c");
-        var q = session.createQuery(hql.toString(), Long.class);
-        if (search != null && !search.isEmpty()) q.setParameter("s", "%" + search + "%");
-        if (category != null && !category.isEmpty()) q.setParameter("c", category);
+        if (!isEmpty(name))       hql.append(" and name like :name");
+        if (!isEmpty(code))       hql.append(" and code like :code");
+        if (!isEmpty(category))   hql.append(" and category = :cat");
+        if (!isEmpty(department)) hql.append(" and department = :dept");
+        if (!isEmpty(status))     hql.append(" and status = :stat");
+
+        var q = sessionFactory.getCurrentSession()
+                .createQuery(hql.toString(), Long.class);
+        if (!isEmpty(name))       q.setParameter("name","%"+name+"%");
+        if (!isEmpty(code))       q.setParameter("code","%"+code+"%");
+        if (!isEmpty(category))   q.setParameter("cat",category);
+        if (!isEmpty(department)) q.setParameter("dept",department);
+        if (!isEmpty(status))     q.setParameter("stat",status);
+
         return q.uniqueResult();
+    }
+
+    private boolean isEmpty(String s){
+        return s==null || s.trim().isEmpty();
     }
 }

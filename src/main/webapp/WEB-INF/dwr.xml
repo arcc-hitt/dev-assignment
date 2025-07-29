@@ -16,7 +16,7 @@
             <param name="include" value="id,searchPrefix,gender,prefixOf"/>
         </convert>
         <convert converter="bean"       match="com.example.model.Item">
-            <param name="include" value="id,code,name,category,createdOn"/>
+            <param name="include" value="id,code,name,category,phone,department,status,createdOn"/>
         </convert>
         <convert converter="date"       match="java.util.Date">
             <param name="format"  value="yyyy-MM-dd HH:mm:ss"/>

@@ -10,15 +10,21 @@ import java.util.List;
 @Service
 @Transactional
 public class ItemService {
-    @Autowired
-    private ItemDAO itemDAO;
+    @Autowired private ItemDAO dao;
 
-    public List<Item> getItems(String search, String category, int page, int pageSize) {
+    public List<Item> getItems(
+            String name, String code, String category,
+            String department, String status,
+            int page, int pageSize
+    ) {
         int offset = (page - 1) * pageSize;
-        return itemDAO.list(search, category, offset, pageSize);
+        return dao.list(name, code, category, department, status, offset, pageSize);
     }
 
-    public long getItemCount(String search, String category) {
-        return itemDAO.count(search, category);
+    public long getItemCount(
+            String name, String code, String category,
+            String department, String status
+    ) {
+        return dao.count(name, code, category, department, status);
     }
 }

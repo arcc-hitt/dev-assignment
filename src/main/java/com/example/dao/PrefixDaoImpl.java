@@ -2,163 +2,64 @@ package com.example.dao;
 
 import com.example.model.Prefix;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
-@Transactional
 public class PrefixDaoImpl implements PrefixDao {
+    @Autowired private SessionFactory sf;
 
-    @Autowired
-    private SessionFactory sf;
-
-    @Override
-    public void save(Prefix p) {
-        try {
-            sf.getCurrentSession().saveOrUpdate(p);
-        }
-        catch (org.hibernate.exception.ConstraintViolationException cve) {
-            // Unique index on search_prefix violated
-            throw new IllegalArgumentException(
-                    "A prefix '" + p.getSearchPrefix() + "' already exists.",
-                    cve
-            );
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Error saving prefix: " + e.getMessage(), e);
-        }
+    private boolean isEmpty(String s){
+        return s==null || s.trim().isEmpty();
     }
 
     @Override
-    public void delete(Long id) {
-        try {
-            Prefix p = get(id);
-            if (p != null) {
-                sf.getCurrentSession().delete(p);
-            } else {
-                throw new RuntimeException("Prefix with ID " + id + " not found");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting prefix: " + e.getMessage(), e);
-        }
+    public List<Prefix> list(
+            String search, String gender, String prefixOf,
+            int offset, int limit
+    ) {
+        var hql = new StringBuilder("FROM Prefix WHERE 1=1");
+        if(!isEmpty(search))   hql.append(" AND LOWER(searchPrefix) LIKE :s");
+        if(!isEmpty(gender))   hql.append(" AND gender = :g");
+        if(!isEmpty(prefixOf)) hql.append(" AND prefixOf LIKE :p");
+
+        var sess = sf.getCurrentSession();
+        var q = sess.createQuery(hql.toString(), Prefix.class);
+        if(!isEmpty(search))   q.setParameter("s","%"+search.toLowerCase()+"%");
+        if(!isEmpty(gender))   q.setParameter("g",gender);
+        if(!isEmpty(prefixOf)) q.setParameter("p","%"+prefixOf+"%");
+
+        q.setFirstResult(offset);
+        q.setMaxResults(limit);
+        return q.list();
     }
 
     @Override
-    public Prefix get(Long id) {
-        try {
-            return sf.getCurrentSession().get(Prefix.class, id);
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving prefix: " + e.getMessage(), e);
-        }
+    public long count(
+            String search, String gender, String prefixOf
+    ) {
+        var hql = new StringBuilder("SELECT COUNT(*) FROM Prefix WHERE 1=1");
+        if(!isEmpty(search))   hql.append(" AND LOWER(searchPrefix) LIKE :s");
+        if(!isEmpty(gender))   hql.append(" AND gender = :g");
+        if(!isEmpty(prefixOf)) hql.append(" AND prefixOf LIKE :p");
+
+        var q = sf.getCurrentSession().createQuery(hql.toString(), Long.class);
+        if(!isEmpty(search))   q.setParameter("s","%"+search.toLowerCase()+"%");
+        if(!isEmpty(gender))   q.setParameter("g",gender);
+        if(!isEmpty(prefixOf)) q.setParameter("p","%"+prefixOf+"%");
+
+        return q.uniqueResult();
     }
 
     @Override
-    public List<Prefix> list(int page, int size, String search) {
-        try {
-            CriteriaBuilder cb = sf.getCurrentSession().getCriteriaBuilder();
-            CriteriaQuery<Prefix> cq = cb.createQuery(Prefix.class);
-            Root<Prefix> root = cq.from(Prefix.class);
-
-            // Add search condition if provided
-            if (search != null && !search.trim().isEmpty()) {
-                Predicate searchPredicate = cb.like(
-                        cb.lower(root.get("searchPrefix")),
-                        "%" + search.toLowerCase().trim() + "%"
-                );
-                cq.where(searchPredicate);
-            }
-
-            // Add ordering
-            cq.orderBy(cb.asc(root.get("searchPrefix")));
-
-            Query<Prefix> query = sf.getCurrentSession().createQuery(cq);
-            query.setFirstResult(page * size);
-            query.setMaxResults(size);
-
-            return query.getResultList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error listing prefixes: " + e.getMessage(), e);
-        }
+    public void save(Prefix p){
+        sf.getCurrentSession().saveOrUpdate(p);
     }
 
     @Override
-    public List<Prefix> listAll() {
-        try {
-            CriteriaBuilder cb = sf.getCurrentSession().getCriteriaBuilder();
-            CriteriaQuery<Prefix> cq = cb.createQuery(Prefix.class);
-            Root<Prefix> root = cq.from(Prefix.class);
-            cq.orderBy(cb.asc(root.get("searchPrefix")));
-
-            return sf.getCurrentSession().createQuery(cq).getResultList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error listing all prefixes: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void saveAll(List<Prefix> prefixes) {
-        try {
-            for (Prefix prefix : prefixes) {
-                sf.getCurrentSession().saveOrUpdate(prefix);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving prefixes: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long count(String search) {
-        try {
-            CriteriaBuilder cb = sf.getCurrentSession().getCriteriaBuilder();
-            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-            Root<Prefix> root = cq.from(Prefix.class);
-            cq.select(cb.count(root));
-
-            // Add search condition if provided
-            if (search != null && !search.trim().isEmpty()) {
-                Predicate searchPredicate = cb.like(
-                        cb.lower(root.get("searchPrefix")),
-                        "%" + search.toLowerCase().trim() + "%"
-                );
-                cq.where(searchPredicate);
-            }
-
-            return sf.getCurrentSession().createQuery(cq).getSingleResult();
-        } catch (Exception e) {
-            throw new RuntimeException("Error counting prefixes: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Prefix findBySearchPrefix(String searchPrefix) {
-        try {
-            if (searchPrefix == null) {
-                return null;
-            }
-
-            // Use case-insensitive search with trimmed input
-            String trimmedPrefix = searchPrefix.trim();
-            if (trimmedPrefix.isEmpty()) {
-                return null;
-            }
-
-            return sf.getCurrentSession()
-                    .createQuery(
-                            "SELECT p FROM Prefix p WHERE LOWER(TRIM(p.searchPrefix)) = LOWER(:sp)",
-                            Prefix.class
-                    )
-                    .setParameter("sp", trimmedPrefix)
-                    .uniqueResult();
-        } catch (Exception e) {
-            throw new RuntimeException("Error looking up prefix by searchPrefix: " + e.getMessage(), e);
-        }
+    public void delete(Long id){
+        var obj = sf.getCurrentSession().get(Prefix.class,id);
+        if(obj!=null) sf.getCurrentSession().delete(obj);
     }
 }

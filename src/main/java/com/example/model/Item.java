@@ -5,96 +5,62 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 @Entity
-@Table(name = "item_list")
+@Table(name="item_list")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "code", nullable = false)
+    @Column(nullable=false)
     private String code;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable=false)
     private String name;
 
-    @Column(name = "category")
+    @Column
     private String category;
 
-    @Column(name = "created_on")
+    @Column
+    private String phone;
+
+    @Column
+    private String department;
+
+    @Column
+    private String status;
+
+    @Column(name="created_on")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
 
-    // Constructors
-    public Item() {}
-
-    public Item(String code, String name, String category) {
-        this.code = code;
-        this.name = name;
-        this.category = category;
-        this.createdOn = new Date();
-    }
-
-    // Getters and Setters with JSON annotations
-    @JsonProperty("id")
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @JsonProperty("code")
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @JsonProperty("category")
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    @JsonProperty("createdOn")
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
+    public Item(){}
 
     @PrePersist
-    protected void onCreate() {
-        if (createdOn == null) {
-            createdOn = new Date();
-        }
+    protected void onCreate(){
+        if (createdOn==null) createdOn=new Date();
     }
 
-    @Override
-    public String toString() {
-        return "Item{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", category='" + category + '\'' +
-                ", createdOn=" + createdOn +
-                '}';
-    }
+    @JsonProperty public Integer getId(){ return id; }
+    public void setId(Integer id){ this.id=id; }
+
+    @JsonProperty public String getCode(){ return code; }
+    public void setCode(String code){ this.code=code; }
+
+    @JsonProperty public String getName(){ return name; }
+    public void setName(String name){ this.name=name; }
+
+    @JsonProperty public String getCategory(){ return category; }
+    public void setCategory(String category){ this.category=category; }
+
+    @JsonProperty public String getPhone(){ return phone; }
+    public void setPhone(String phone){ this.phone=phone; }
+
+    @JsonProperty public String getDepartment(){ return department; }
+    public void setDepartment(String department){ this.department=department; }
+
+    @JsonProperty public String getStatus(){ return status; }
+    public void setStatus(String status){ this.status=status; }
+
+    @JsonProperty public Date getCreatedOn(){ return createdOn; }
+    public void setCreatedOn(Date createdOn){ this.createdOn=createdOn; }
 }
