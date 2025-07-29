@@ -102,4 +102,8 @@ public class PrefixServiceImpl implements PrefixService {
     public long count(String search) {
         return dao.count(search);
     }
+    @Override
+    public Prefix findBySearchPrefix(String searchPrefix) {
+        return dao.findBySearchPrefix(searchPrefix);
+    }
 }

@@ -10,5 +10,7 @@ public interface PrefixService {
     List<Prefix> list(int page, int size, String search);
     List<Prefix> listAll();
     void saveAll(List<Prefix> prefixes);
-    long count(String search);  // Added count method
+    long count(String search);
+
+    Prefix findBySearchPrefix(String searchPrefix);
 }

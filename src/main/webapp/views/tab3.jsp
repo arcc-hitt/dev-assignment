@@ -1,73 +1,97 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<h3>Tab 3: List Page with Paging and Search Feature</h3>
+<h3 class="mb-3">Tab 3: List Page with Paging and Search Feature</h3>
 
-<!-- Search and Filter Controls -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5>Search &amp; Filter</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="searchInput">Search (Code/Name):</label>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Enter code or name...">
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="categorySelect">Category:</label>
-                    <select id="categorySelect" class="form-control">
-                        <option value="">-- All Categories --</option>
-                        <option value="A">Category A</option>
-                        <option value="B">Category B</option>
-                        <option value="C">Category C</option>
-                        <option value="D">Category D</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <div>
-                        <button onclick="loadItems(1)" class="btn btn-primary">Search</button>
-                        <button onclick="clearFilters()" class="btn btn-secondary ml-2">Clear</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Results Table -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>Item List</h5>
-        <div>
-            <span id="recordCount" class="badge badge-info">Total: 0 records</span>
-            <button onclick="loadItems(currentPage)" class="btn btn-secondary btn-sm ml-2">Refresh</button>
-        </div>
-    </div>
-    <div class="card-body">
+<div class="card shadow-sm">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover" id="itemTable">
-                <thead class="thead-dark">
-                <tr>
-                    <th width="10%">ID</th>
-                    <th width="20%">Code</th>
-                    <th width="30%">Name</th>
-                    <th width="20%">Category</th>
-                    <th width="20%">Created On</th>
+            <table class="table table-striped table-hover mb-0" id="itemTable">
+                <thead>
+                <!-- FILTER ROW -->
+                <tr class="bg-light">
+                    <th>
+                        <div class="input-group input-group-sm">
+                            <input
+                                    type="text"
+                                    id="searchInput"
+                                    class="form-control form-control-sm"
+                                    placeholder="Search Name"
+                            />
+                            <div class="input-group-append">
+                  <span class="input-group-text">
+                    <i class="fa fa-search"></i>
+                  </span>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-group input-group-sm">
+                            <input
+                                    type="text"
+                                    id="searchCode"
+                                    class="form-control form-control-sm"
+                                    placeholder="Search Code"
+                                    onkeypress="if(event.key==='Enter')loadItems(1)"
+                            />
+                            <div class="input-group-append">
+                  <span class="input-group-text">
+                    <i class="fa fa-search"></i>
+                  </span>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <select
+                                id="categorySelect"
+                                class="form-control form-control-sm"
+                        >
+                            <option value="">All Types</option>
+                            <option>Staff</option>
+                            <option>Doctor</option>
+                            <option>Consultant</option>
+                        </select>
+                    </th>
+                    <th>Phone</th>
+                    <th>
+                        <input
+                                type="text"
+                                id="departmentFilter"
+                                class="form-control form-control-sm"
+                                placeholder="Department"
+                                onkeypress="if(event.key==='Enter')loadItems(1)"
+                        />
+                    </th>
+                    <th>
+                        <select
+                                id="statusFilter"
+                                class="form-control form-control-sm"
+                        >
+                            <option value="">All Status</option>
+                            <option>Confirmed</option>
+                            <option>Regular</option>
+                            <option>Probationary</option>
+                            <option>Contract</option>
+                            <option>Trainee</option>
+                        </select>
+                    </th>
+                    <th>Joining Date</th>
+                </tr>
+                <!-- COLUMN LABELS -->
+                <tr class="thead-dark">
+                    <th width="20%">Name</th>
+                    <th width="15%">Code</th>
+                    <th width="15%">User Type</th>
+                    <th width="15%">Phone</th>
+                    <th width="15%">Department</th>
+                    <th width="10%">Status</th>
+                    <th width="10%">Joining Date</th>
                 </tr>
                 </thead>
                 <tbody id="itemTableBody">
                 <tr>
-                    <td colspan="5" class="text-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+                    <td colspan="7" class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm mr-2" role="status"></div>
                         Loading data...
                     </td>
                 </tr>
@@ -75,70 +99,44 @@
             </table>
         </div>
 
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
+        <!-- FOOTER: Record count / Refresh / PageSize / Pagination -->
+        <div
+                class="d-flex align-items-center justify-content-between p-3 border-top bg-white"
+        >
             <div>
-                <select id="pageSizeSelect" class="form-control" style="width: auto; display: inline-block;" onchange="changePageSize()">
-                    <option value="5">5 per page</option>
-                    <option value="10" selected>10 per page</option>
-                    <option value="20">20 per page</option>
-                    <option value="50">50 per page</option>
+                <span id="recordCount" class="badge badge-info">Total: 0 records</span>
+                <button
+                        onclick="loadItems(currentPage)"
+                        class="btn btn-outline-secondary btn-sm ml-2"
+                >
+                    Refresh
+                </button>
+            </div>
+
+            <div class="form-inline">
+                <label class="mr-2 mb-0" for="pageSizeSelect">Page Size:</label>
+                <select
+                        id="pageSizeSelect"
+                        class="form-control form-control-sm"
+                        onchange="changePageSize()"
+                >
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
                 </select>
             </div>
-            <div>
-                <span id="pageInfo" class="text-muted">Page 1 of 1</span>
-            </div>
-            <div class="pagination-container">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0" id="paginationControls">
-                        <!-- Pagination buttons will be inserted here -->
-                    </ul>
-                </nav>
-            </div>
+
+            <div class="text-muted" id="pageInfo">Page 1 of 1</div>
+
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationControls">
+                    <!-- injected by JS -->
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
-
-<style>
-    /* Custom styling for the table */
-    #itemTable {
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    #itemTable thead th {
-        border-top: none;
-        font-weight: 600;
-    }
-
-    #itemTable tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .pagination-container {
-        margin-left: auto;
-    }
-
-    .badge {
-        font-size: 0.875em;
-    }
-
-    .spinner-border-sm {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .table-responsive {
-            font-size: 0.875rem;
-        }
-
-        .pagination-sm .page-link {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
-    }
-</style>
 
 <script type="text/javascript">
     // Global variables

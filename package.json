@@ -1,5 +1,22 @@
 {
+  "name": "mednet-pdf-generator",
+  "version": "1.0.0",
+  "description": "PDF generation using Puppeteer for Mednet Labs training assignment",
+  "main": "generatePdf.js",
+  "scripts": {
+    "install-puppeteer": "npm install puppeteer",
+    "test": "node generatePdf.js"
+  },
   "dependencies": {
     "puppeteer": "^24.15.0"
-  }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "pdf",
+    "puppeteer",
+    "html-to-pdf",
+    "spring-boot"
+  ]
 }
