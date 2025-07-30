@@ -30,14 +30,14 @@ public class PrefixDwrService {
             String search, String gender, String prefixOf,
             int page, int pageSize
     ){
-        return getSvc().getPrefixes(search,gender,prefixOf,page,pageSize);
+        return getSvc().getPrefixes(search, gender, prefixOf, page, pageSize);
     }
 
     @RemoteMethod
     public long count(
             String search, String gender, String prefixOf
     ){
-        return getSvc().getPrefixCount(search,gender,prefixOf);
+        return getSvc().getPrefixCount(search, gender, prefixOf);
     }
 
     @RemoteMethod

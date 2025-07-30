@@ -1,8 +1,10 @@
-<h3>Tab 1: Dropdowns</h3>
+<h3 id="tab1-title">Tab 1: Department Dropdowns</h3>
+<!-- Department selection row -->
 <div class="row">
     <div class="col-md-6">
-        <label for="htmlSelect">DEPARTMENT:</label>
-        <select id="htmlSelect" class="form-control">
+        <!-- Department dropdown label and select -->
+        <label for="departmentSelect" class="font-weight-bold">Department:</label>
+        <select id="departmentSelect" class="form-control" aria-label="Select Department">
             <option value="">Select Department</option>
             <option value="IT">IT</option>
             <option value="HR">HR</option>
@@ -12,35 +14,51 @@
         </select>
     </div>
     <div class="col-md-6">
-        <div id="extCombo"></div>
+        <!-- ExtJS ComboBox placeholder -->
+        <div id="staticComboContainer"></div>
     </div>
 </div>
+<!-- Status/Error message container -->
+<div id="tab1StatusMessage" class="mt-2" aria-live="polite"></div>
 
 <script>
-    Ext.onReady(function(){
-        // Define a simple in‑memory store for ExtJS ComboBox
-        const staticStore = Ext.create('Ext.data.Store', {
-            fields: ['text','value'],
-            data: [
-                { text: 'STATIC VALUE', value: 'static' },
-                { text: 'Option 1', value: 'opt1' },
-                { text: 'Option 2', value: 'opt2' },
-                { text: 'Option 3', value: 'opt3' }
-            ]
-        });
+// ExtJS ComboBox initialization for static values
+Ext.onReady(function() {
+    // In-memory store for ComboBox
+    const staticComboStore = Ext.create('Ext.data.Store', {
+        fields: ['label', 'value'],
+        data: [
+            { label: 'STATIC VALUE', value: 'static' },
+            { label: 'Option 1', value: 'opt1' },
+            { label: 'Option 2', value: 'opt2' },
+            { label: 'Option 3', value: 'opt3' }
+        ]
+    });
 
-        // Create the ExtJS ComboBox
+    try {
+        // Create the ComboBox
         Ext.create('Ext.form.ComboBox', {
-            renderTo: 'extCombo',
-            fieldLabel: 'STATIC VALUE',
+            renderTo: 'staticComboContainer',
+            fieldLabel: 'Static Value',
             labelAlign: 'top',
-            store: staticStore,
+            store: staticComboStore,
             queryMode: 'local',
-            displayField: 'text',
+            displayField: 'label',
             valueField: 'value',
             width: 250,
             value: 'static',
             publishes: 'value',
+            // Add ARIA label for accessibility
+            ariaLabel: 'Static Value Dropdown'
         });
-    });
+    } catch (error) {
+        // Display error message to user if ComboBox fails to render
+        const statusDiv = document.getElementById('tab1StatusMessage');
+        if (statusDiv) {
+            statusDiv.innerHTML = '<span class="text-danger">Failed to initialize dropdown: ' + error.message + '</span>';
+        }
+        // Optionally log error to console for debugging
+        console.error('ComboBox initialization error:', error);
+    }
+});
 </script>
