@@ -15,9 +15,6 @@ import java.util.List;
 /**
  * Data Access Object implementation for Prefix entity.
  * Handles database operations for prefix records using Hibernate.
- * 
- * @author Dev Assignment
- * @version 1.0
  */
 @Repository
 public class PrefixDaoImpl implements PrefixDao {

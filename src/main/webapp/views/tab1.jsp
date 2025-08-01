@@ -22,16 +22,18 @@
 <div id="tab1StatusMessage" class="mt-2" aria-live="polite"></div>
 
 <script>
-// ExtJS ComboBox initialization for static values
+// ExtJS ComboBox initialization
 Ext.onReady(function() {
     // In-memory store for ComboBox
     const staticComboStore = Ext.create('Ext.data.Store', {
         fields: ['label', 'value'],
         data: [
-            { label: 'STATIC VALUE', value: 'static' },
-            { label: 'Option 1', value: 'opt1' },
-            { label: 'Option 2', value: 'opt2' },
-            { label: 'Option 3', value: 'opt3' }
+            { label: 'Select Department', value: 'default' },
+            { label: 'IT', value: 'IT' },
+            { label: 'HR', value: 'HR' },
+            { label: 'Finance', value: 'Finance' },
+            { label: 'Marketing', value: 'Marketing' },
+            { label: 'Sales', value: 'Sales' }
         ]
     });
 
@@ -46,10 +48,7 @@ Ext.onReady(function() {
             displayField: 'label',
             valueField: 'value',
             width: 250,
-            value: 'static',
-            publishes: 'value',
-            // Add ARIA label for accessibility
-            ariaLabel: 'Static Value Dropdown'
+            value: 'default',
         });
     } catch (error) {
         // Display error message to user if ComboBox fails to render

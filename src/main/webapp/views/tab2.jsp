@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<h3 id="tab2-title mb-2">Tab 2: HTML Editor Popup</h3>
+<h3 id="tab2-title">Tab 2: HTML Editor Popup</h3>
 
 <!-- Trigger button -->
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#htmlEditorModal">
@@ -8,7 +8,7 @@
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="htmlEditorModal" tabindex="-1" role="dialog" aria-labelledby="htmlEditorModalLabel" aria-hidden="true">
+<div class="modal fade" id="htmlEditorModal" role="dialog" aria-labelledby="htmlEditorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
 
@@ -25,14 +25,14 @@
                     <div class="col-md-6">
                         <table class="table table-borderless table-sm">
                             <tbody>
-                            <tr><td>Name: <span id="patientName">${patient.name}</span></td></tr>
-                            <tr><td>MRN: <span id="patientMrn">${patient.mrn}</span></td></tr>
-                            <tr><td>Date Of Birth: <span id="patientDob">${patient.dob}</span></td></tr>
-                            <tr><td>Age: <span id="patientAge">${patient.age}</span></td></tr>
-                            <tr><td>Gender: <span id="patientGender">${patient.gender}</span></td></tr>
-                            <tr><td>Address: <span id="patientAddress"></span>${patient.address}</span></td></tr>
-                            <tr><td>Req Date: <span id="patientRequestDate">${patient.requestDate}</span></td></tr>
-                            <tr><td>Status: <span id="patientStatus">${patient.status}</span></td></tr>
+                            <tr><td>Name: <span id="patientName"></span></td></tr>
+                            <tr><td>MRN: <span id="patientMrn"></span></td></tr>
+                            <tr><td>Date Of Birth: <span id="patientDob"></span></td></tr>
+                            <tr><td>Age: <span id="patientAge"></span></td></tr>
+                            <tr><td>Gender: <span id="patientGender"></span></td></tr>
+                            <tr><td>Address: <span id="patientAddress"></span></td></tr>
+                            <tr><td>Req Date: <span id="patientRequestDate"></span></td></tr>
+                            <tr><td>Status: <span id="patientStatus"></span></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -95,26 +95,6 @@
             address: '123 Elm Street, Springfield',
             requestDate: '2025-07-25',
             status: 'HISTOPATHOLOGY'
-        },
-        {
-            name: 'Bob Johnson',
-            mrn: 'MRN1002',
-            dob: '1975-04-02',
-            age: 49,
-            gender: 'Male',
-            address: '456 Oak Avenue, Metropolis',
-            requestDate: '2025-07-26',
-            status: 'CYTOLOGY'
-        },
-        {
-            name: 'Carol Lee',
-            mrn: 'MRN1003',
-            dob: '1990-09-15',
-            age: 34,
-            gender: 'Female',
-            address: '789 Pine Road, Gotham',
-            requestDate: '2025-07-27',
-            status: 'HAEMATOLOGY'
         }
     ];
 

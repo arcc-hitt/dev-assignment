@@ -7,9 +7,6 @@ import java.util.Objects;
 /**
  * Entity class representing a prefix record in the database.
  * Contains information about search prefixes, gender associations, and prefix relationships.
- * 
- * @author Dev Assignment
- * @version 1.0
  */
 @Entity
 @Table(name = "prefix")
