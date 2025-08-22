@@ -62,6 +62,9 @@
 <div class="card">
     <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-list"></i> Prefix List</h5>
+        <button type="button" class="btn btn-outline-light btn-sm" onclick="clearAllFiltersTab6()">
+            <i class="fas fa-eraser"></i> Clear All Filters
+        </button>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -76,12 +79,8 @@
                                     id="searchFilterTab6"
                                     class="form-control form-control-sm"
                                     placeholder="Search Prefix"
-                                    onkeypress="if(event.key==='Enter')applyFilterTab6()">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterTab6()">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
+                                    onkeypress="if(event.key==='Enter')applyFilterTab6()"
+                            />
                         </div>
                     </th>
                     <th style="width:20%">
@@ -187,6 +186,7 @@ let currentPrefixOfRestTab6 = '';
 let isAddingRestTab6 = false;
 let isDeletingRestTab6 = false;
 let deleteIdRestTab6 = null;
+let searchTimeoutRestTab6 = null;
 
 // Initialize Tab 6: wire up filters, page size, and form events for REST API
 function initTab6Rest() {
@@ -194,9 +194,30 @@ function initTab6Rest() {
     ['searchFilterTab6', 'genderFilterTab6', 'prefixOfFilterTab6'].forEach(function (id) {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') applyFilterTab6();
+            // Input event listener for real-time search with debouncing
+            el.addEventListener('input', function () {
+                // Clear existing timeout
+                if (searchTimeoutRestTab6) {
+                    clearTimeout(searchTimeoutRestTab6);
+                }
+                // Set new timeout for debounced search
+                searchTimeoutRestTab6 = setTimeout(function() {
+                    applyFilterTab6();
+                }, 300); // 300ms delay
             });
+
+            // Enter key functionality
+            el.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    // Clear timeout and search immediately
+                    if (searchTimeoutRestTab6) {
+                        clearTimeout(searchTimeoutRestTab6);
+                    }
+                    applyFilterTab6();
+                }
+            });
+
+            // For select dropdown, change event
             el.addEventListener('change', applyFilterTab6);
         }
     });
@@ -228,6 +249,30 @@ function initTab6Rest() {
         });
     }
     // Initial data load
+    loadRestPrefixListTab6(1);
+}
+
+// Clear all filters function
+function clearAllFiltersTab6() {
+    // Clear all filter inputs
+    [
+        'searchFilterTab6',
+        'genderFilterTab6',
+        'prefixOfFilterTab6'
+    ].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+        }
+    });
+
+    // Clear any pending search timeout
+    if (searchTimeoutRestTab6) {
+        clearTimeout(searchTimeoutRestTab6);
+    }
+
+    // Reset to first page and reload
+    currentPageRestTab6 = 1;
     loadRestPrefixListTab6(1);
 }
 

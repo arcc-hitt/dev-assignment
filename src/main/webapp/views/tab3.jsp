@@ -1,7 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<h3 id="tab3-title" class="mb-3">Tab 3: List Page with Paging and Search Feature</h3>
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <h3 id="tab3-title" class="">Tab 3: List Page with Paging and Search Feature</h3>
+
+    <!-- Clear Filters Button -->
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllFiltersTab3()">
+        <i class="fas fa-eraser"></i> Clear All Filters
+    </button>
+</div>
 
 <!-- Card for table and filters -->
 <div class="card shadow-sm">
@@ -20,11 +27,6 @@
                                     placeholder="Search Name"
                                     aria-label="Search Name"
                             />
-                            <div class="input-group-append">
-                  <span class="input-group-text">
-                    <i class="fa fa-search"></i>
-                  </span>
-                            </div>
                         </div>
                     </th>
                     <th>
@@ -37,11 +39,6 @@
                                     aria-label="Search Code"
                                     onkeypress="if(event.key==='Enter')loadUserList(1)"
                             />
-                            <div class="input-group-append">
-                  <span class="input-group-text">
-                    <i class="fa fa-search"></i>
-                  </span>
-                            </div>
                         </div>
                     </th>
                     <th>
@@ -145,6 +142,7 @@
 let currentPage = 1;
 let pageSize = 10;
 let totalPages = 1;
+let searchTimeout = null;
 
 // Initialize Tab 3: wire up filters, page size, and DWR
 function initTab3() {
@@ -158,9 +156,30 @@ function initTab3() {
     ].forEach(function (id) {
         const el = document.getElementById(id);
         if (!el) return;
-        el.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') loadUserList(1);
+        // Input event listener for real-time search with debouncing
+        el.addEventListener('input', function () {
+            // Clear existing timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            // Set new timeout for debounced search
+            searchTimeout = setTimeout(function() {
+                loadUserList(1);
+            }, 300); // 300ms delay
         });
+
+        // Enter key functionality
+        el.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                // Clear timeout and search immediately
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                loadUserList(1);
+            }
+        });
+
+        // For select dropdowns, change event
         el.addEventListener('change', function () {
             loadUserList(1);
         });
@@ -181,6 +200,31 @@ function initTab3() {
     }
 
     // Initial data load
+    loadUserList(1);
+}
+
+// Clear all filters function
+function clearAllFiltersTab3() {
+    // Clear all filter inputs
+    [
+        'nameSearchInput',
+        'codeSearchInput',
+        'userTypeSelect',
+        'departmentSearchInput',
+        'statusSelect'
+    ].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+        }
+    });
+
+    // Clear any pending search timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
+    // Reload data with cleared filters
     loadUserList(1);
 }
 

@@ -63,6 +63,9 @@
 <div class="card">
     <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-list"></i> Prefix List</h5>
+        <button type="button" class="btn btn-outline-light btn-sm" onclick="clearAllFiltersTab4()">
+            <i class="fas fa-eraser"></i> Clear All Filters
+        </button>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -77,12 +80,8 @@
                                     id="searchFilterTab4"
                                     class="form-control form-control-sm"
                                     placeholder="Search Prefix"
-                                    onkeypress="if(event.key==='Enter')applyFilterTab4()">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterTab4()">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
+                                    onkeypress="if(event.key==='Enter')applyFilterTab4()"
+                            />
                         </div>
                     </th>
                     <th style="width:20%">
@@ -190,6 +189,7 @@ let dwrLoadedTab4 = false;
 let isAddingTab4 = false;
 let isDeletingTab4 = false;
 let deleteIdTab4 = null;
+let searchTimeoutTab4 = null;
 
 // Initialize Tab 4: wire up filters, page size, DWR, and form events
 function initTab4() {
@@ -209,9 +209,29 @@ function initTab4() {
     ['searchFilterTab4', 'genderFilterTab4', 'prefixOfFilterTab4'].forEach(function (id) {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') applyFilterTab4();
+            // Input event listener for real-time search with debouncing
+            el.addEventListener('input', function () {
+                // Clear existing timeout
+                if (searchTimeoutTab4) {
+                    clearTimeout(searchTimeoutTab4);
+                }
+                // Set new timeout for debounced search
+                searchTimeoutTab4 = setTimeout(function() {
+                    applyFilterTab4();
+                }, 300); // 300ms delay
             });
+
+            // Enter key functionality
+            el.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    // Clear timeout and search immediately
+                    if (searchTimeoutTab4) {
+                        clearTimeout(searchTimeoutTab4);
+                    }
+                    applyFilterTab4();
+                }
+            });
+            // For select dropdown, change event
             el.addEventListener('change', applyFilterTab4);
         }
     });
@@ -243,6 +263,30 @@ function initTab4() {
         });
     }
     // Initial data load
+    loadPrefixListTab4(1);
+}
+
+// Clear all filters function
+function clearAllFiltersTab4() {
+    // Clear all filter inputs
+    [
+        'searchFilterTab4',
+        'genderFilterTab4',
+        'prefixOfFilterTab4'
+    ].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+        }
+    });
+
+    // Clear any pending search timeout
+    if (searchTimeoutTab4) {
+        clearTimeout(searchTimeoutTab4);
+    }
+
+    // Reset to first page and reload
+    currentPageTab4 = 1;
     loadPrefixListTab4(1);
 }
 

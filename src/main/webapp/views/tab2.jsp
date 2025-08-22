@@ -36,38 +36,29 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Live preview column -->
-                    <div class="col-md-6">
-                        <label class="font-weight-bold">Live Preview</label>
-                        <div id="livePreview"
-                             style="height: 300px; border: 1px solid #ccc; padding: 10px; overflow-y: auto; background: #fafafa;">
-                            <!-- rendered HTML will appear here -->
-                        </div>
-                    </div>
                 </div>
 
                 <hr/>
 
                 <!-- Editor toolbar -->
                 <div id="quillToolbar" class="mb-2">
-          <span class="ql-formats">
-            <button class="ql-bold"></button>
-            <button class="ql-italic"></button>
-            <button class="ql-underline"></button>
-          </span>
                     <span class="ql-formats">
-            <button class="ql-list" value="ordered"></button>
-            <button class="ql-list" value="bullet"></button>
-          </span>
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                    </span>
                     <span class="ql-formats">
-            <button class="ql-align" value=""></button>
-            <button class="ql-align" value="center"></button>
-            <button class="ql-align" value="right"></button>
-          </span>
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
                     <span class="ql-formats">
-            <button class="ql-clean"></button>
-          </span>
+                        <button class="ql-align" value=""></button>
+                        <button class="ql-align" value="center"></button>
+                        <button class="ql-align" value="right"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-clean"></button>
+                    </span>
                 </div>
 
                 <!-- Editor -->
@@ -100,7 +91,7 @@
 
     // Example: populate patient #1 when you open the modal
     $('#htmlEditorModal').on('show.bs.modal', function (e) {
-        const patient = patients[0];  // pick 0, 1 or 2
+        const patient = patients[0];
         $('#patientName').text(patient.name);
         $('#patientMrn').text(patient.mrn);
         $('#patientDob').text(patient.dob);
@@ -124,9 +115,6 @@
                 const text = quill.getText().trim();
                 const count = text ? text.split(/\s+/).length : 0;
                 document.getElementById('wordCount').innerText = count + ' Words';
-
-                // Live HTML preview
-                document.getElementById('livePreview').innerHTML = quill.root.innerHTML;
             });
         }
         quill.focus();
@@ -136,7 +124,6 @@
         if (window.quill) {
             quill.setText('');
             document.getElementById('wordCount').innerText = '0 Words';
-            document.getElementById('livePreview').innerHTML = '';
         }
     });
 </script>

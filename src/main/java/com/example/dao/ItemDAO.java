@@ -19,7 +19,7 @@ public class ItemDAO {
         if (!isEmpty(name))       hql.append(" and name like :name");
         if (!isEmpty(code))       hql.append(" and code like :code");
         if (!isEmpty(category))   hql.append(" and category = :cat");
-        if (!isEmpty(department)) hql.append(" and department = :dept");
+        if (!isEmpty(department)) hql.append(" and department like :dept");
         if (!isEmpty(status))     hql.append(" and status = :stat");
 
         var session = sessionFactory.getCurrentSession();
@@ -28,7 +28,7 @@ public class ItemDAO {
         if (!isEmpty(name))       q.setParameter("name","%"+name+"%");
         if (!isEmpty(code))       q.setParameter("code","%"+code+"%");
         if (!isEmpty(category))   q.setParameter("cat",category);
-        if (!isEmpty(department)) q.setParameter("dept",department);
+        if (!isEmpty(department)) q.setParameter("dept","%"+department+"%");
         if (!isEmpty(status))     q.setParameter("stat",status);
 
         q.setFirstResult(offset);
@@ -44,7 +44,7 @@ public class ItemDAO {
         if (!isEmpty(name))       hql.append(" and name like :name");
         if (!isEmpty(code))       hql.append(" and code like :code");
         if (!isEmpty(category))   hql.append(" and category = :cat");
-        if (!isEmpty(department)) hql.append(" and department = :dept");
+        if (!isEmpty(department)) hql.append(" and department like :dept");
         if (!isEmpty(status))     hql.append(" and status = :stat");
 
         var q = sessionFactory.getCurrentSession()
@@ -52,7 +52,7 @@ public class ItemDAO {
         if (!isEmpty(name))       q.setParameter("name","%"+name+"%");
         if (!isEmpty(code))       q.setParameter("code","%"+code+"%");
         if (!isEmpty(category))   q.setParameter("cat",category);
-        if (!isEmpty(department)) q.setParameter("dept",department);
+        if (!isEmpty(department)) q.setParameter("dept","%"+department+"%");
         if (!isEmpty(status))     q.setParameter("stat",status);
 
         return q.uniqueResult();
